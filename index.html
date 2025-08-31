@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Pocket Car - Hotel on Wheels (Booking Mockup)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -260,6 +260,36 @@
         .muted{color:var(--muted)}
         .actions button{margin-left:8px}
 
+        /* Service type selector */
+        .service-type-selector {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            background: rgba(255,255,255,0.03);
+            padding: 12px;
+            border-radius: 10px;
+        }
+        .service-option {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .service-option.selected {
+            background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.08));
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .service-option i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
         /* Hero buttons container */
         .hero-buttons{display:flex;justify-content:center;gap:20px;margin-top:26px}
 
@@ -273,6 +303,7 @@
             .company-content{flex-direction:column}
             .mv-container{flex-direction:column}
             .cta-button, .secondary-button { width: 100%; max-width: 320px; text-align:center }
+            .service-type-selector { flex-direction: column; }
         }
 
     </style>
@@ -282,7 +313,7 @@
     <header>
         <div class="container header-container">
             <div class="logo">
-                <img src="pocketcar.png" alt="Pocket Car logo" class="logo-img">
+                <img src="img/pocketcar.png" alt="Pocket Car logo" class="logo-img">
                 <span class="brand-text">Pocket Car</span>
               </div>
                           <nav>
@@ -442,10 +473,11 @@
             </div>
 
             <div class="status-container">
+
                 <div id="status-result" class="status-result">
                     <!-- dynamic content injected here -->
                 </div>
-
+ 
                 <!-- Bookings list (shows local bookings) -->
                 <div class="bookings-list" id="bookings-list">
                     <!-- populated by JS -->
@@ -453,55 +485,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container footer-container">
-            <div class="footer-column">
-                <h3>Pocket Car</h3>
-                <p>Redefining hospitality with our innovative hotel car service that picks you up and brings you home.</p>
-                <div class="footer-social">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                </div>
-            </div>
-            <div class="footer-column">
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="#company">Company Details</a></li>
-                    <li><a href="#mission">Mission & Vision</a></li>
-                    <li><a href="#officers">Our Officers</a></li>
-                    <li><a href="#booking">Booking Status</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h3>Services</h3>
-                <ul>
-                    <li><a href="#">Airport Transfers</a></li>
-                    <li><a href="#">City-to-City Travel</a></li>
-                    <li><a href="#">Corporate Travel</a></li>
-                    <li><a href="#">Event Transportation</a></li>
-                    <li><a href="#">Luxury Experiences</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h3>Contact Us</h3>
-                <ul>
-                    <li><i class="fas fa-map-marker-alt"></i> 123 Luxury Lane, Metro City</li>
-                    <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
-                    <li><i class="fas fa-envelope"></i> info@pocketcar.com</li>
-                </ul>
-                <button class="outline-button" style="margin-top: 20px; background: rgba(255,255,255,0.02); color: var(--light); border-color: rgba(212,175,55,0.18);">
-                    <i class="fas fa-headset"></i> Contact Support
-                </button>
-            </div>
-        </div>
-        <div class="copyright">
-            <p>&copy; 2025 Pocket Car. All rights reserved.</p>
-        </div>
-    </footer>
 
     <!-- Booking Modal -->
     <div id="modal-backdrop" class="modal-backdrop" aria-hidden="true">
@@ -511,7 +494,21 @@
                 <button id="close-modal" class="close" aria-label="Close">&times;</button>
             </header>
 
+            <!-- Service Type Selector -->
+            <div class="service-type-selector">
+                <div class="service-option selected" id="checkin-option">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Check-in</span>
+                </div>
+                <div class="service-option" id="checkout-option">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Check-out</span>
+                </div>
+            </div>
+
             <form id="booking-form">
+                <input type="hidden" id="service-type" value="checkin">
+                
                 <div class="booking-grid">
                     <div class="form-group">
                         <label for="full-name">Full Name</label>
@@ -525,14 +522,19 @@
                         <label for="email-book">Email</label>
                         <input id="email-book" type="email" placeholder="Email address" required>
                     </div>
-                    <div class="form-group">
-                        <label for="pickup">Pickup Address</label>
-                        <input id="pickup" type="text" placeholder="Hotel or pickup point" required>
+                    
+                    <!-- Pickup Address (shown for check-in) -->
+                    <div class="form-group" id="pickup-group">
+                        <label for="pickup"><i class="fas fa-map-marker-alt"></i> Pickup Address</label>
+                        <input id="pickup" type="text" placeholder="Airport, station, or location" required>
                     </div>
-                    <div class="form-group">
-                        <label for="dropoff">Dropoff Address</label>
-                        <input id="dropoff" type="text" placeholder="Destination" required>
+                    
+                    <!-- Dropoff Address (shown for check-out) -->
+                    <div class="form-group" id="dropoff-group" style="display: none;">
+                        <label for="dropoff"><i class="fas fa-flag-checkered"></i> Dropoff Address</label>
+                        <input id="dropoff" type="text" placeholder="Destination address">
                     </div>
+                    
                     <div class="form-group">
                         <label for="date">Date</label>
                         <input id="date" type="date" required>
@@ -541,14 +543,7 @@
                         <label for="time">Time</label>
                         <input id="time" type="time" required>
                     </div>
-                    <div class="form-group">
-                        <label for="vehicle">Vehicle Type</label>
-                        <select id="vehicle">
-                            <option>Premium Sedan</option>
-                            <option>Premium Luxury Van</option>
-                            <option>Executive SUV</option>
-                        </select>
-                    </div>
+
                     <div class="form-group">
                         <label for="passengers">Passengers</label>
                         <input id="passengers" type="number" min="1" max="10" value="1">
@@ -579,6 +574,41 @@
         const closeModalBtn = $('#close-modal');
         const cancelBookingBtn = $('#cancel-booking');
 
+        // Service type toggle
+        const checkinOption = $('#checkin-option');
+        const checkoutOption = $('#checkout-option');
+        const serviceTypeInput = $('#service-type');
+        const pickupGroup = $('#pickup-group');
+        const dropoffGroup = $('#dropoff-group');
+        const pickupInput = $('#pickup');
+        const dropoffInput = $('#dropoff');
+
+        function toggleServiceType(type) {
+            // Update UI
+            if (type === 'checkin') {
+                checkinOption.classList.add('selected');
+                checkoutOption.classList.remove('selected');
+                pickupGroup.style.display = 'block';
+                dropoffGroup.style.display = 'none';
+                pickupInput.setAttribute('required', 'true');
+                dropoffInput.removeAttribute('required');
+            } else {
+                checkinOption.classList.remove('selected');
+                checkoutOption.classList.add('selected');
+                pickupGroup.style.display = 'none';
+                dropoffGroup.style.display = 'block';
+                dropoffInput.setAttribute('required', 'true');
+                pickupInput.removeAttribute('required');
+            }
+            
+            // Update hidden input value
+            serviceTypeInput.value = type;
+        }
+
+        // Add event listeners for service type toggle
+        checkinOption.addEventListener('click', () => toggleServiceType('checkin'));
+        checkoutOption.addEventListener('click', () => toggleServiceType('checkout'));
+
         function openModal(){
             // set date min to today
             const dateInput = $('#date');
@@ -587,6 +617,9 @@
             const mm = String(today.getMonth()+1).padStart(2,'0');
             const dd = String(today.getDate()).padStart(2,'0');
             dateInput.min = `${yyyy}-${mm}-${dd}`;
+
+            // Reset to check-in by default
+            toggleServiceType('checkin');
 
             backdrop.style.display = 'flex';
             backdrop.setAttribute('aria-hidden', 'false');
@@ -646,8 +679,9 @@
                 card.className = 'booking-card';
                 card.innerHTML = `
                     <div>
-                        <div style="font-weight:700">${b.fullName} <span class="small muted">• ${b.vehicle}</span></div>
+                        <div style="font-weight:700">${b.fullName} <span class="small muted">• ${b.passengers} pax • ${b.serviceType}</span></div>
                         <div class="small">${b.date} ${b.time} · Ref: <strong>${b.ref}</strong></div>
+                        <div class="small">${b.serviceType === 'checkin' ? 'From: ' + b.pickup : 'To: ' + b.dropoff}</div>
                     </div>
                     <div style="display:flex;align-items:center">
                         <div class="badge ${b.status.toLowerCase()}">
@@ -687,10 +721,12 @@
             statusEl.innerHTML = `
                 <div class="status-icon"><i class="fas fa-info-circle ${b.status==='Confirmed'?'confirmed':'pending'}"></i></div>
                 <h3>${b.status}</h3>
-                <p><strong>${b.fullName}</strong> — ${b.vehicle} | ${b.passengers} pax</p>
+                <p><strong>${b.fullName}</strong> · ${b.passengers} pax · ${b.serviceType}</p>
                 <p>${b.date} at ${b.time}</p>
-                <p>Pickup: ${b.pickup}</p>
-                <p>Dropoff: ${b.dropoff}</p>
+                ${b.serviceType === 'checkin' ? 
+                    `<p>Pickup: ${b.pickup}</p>` : 
+                    `<p>Dropoff: ${b.dropoff}</p>`
+                }
                 <p class="small muted">Reference: <strong>${b.ref}</strong></p>
                 <p class="small muted">Driver: <strong>${b.driver.name}</strong> · Vehicle: <strong>${b.driver.vehicle}</strong></p>
             `;
@@ -714,22 +750,35 @@
             const fullName = $('#full-name').value.trim();
             const phone = $('#phone').value.trim();
             const email = $('#email-book').value.trim();
+            const serviceType = serviceTypeInput.value;
             const pickup = $('#pickup').value.trim();
             const dropoff = $('#dropoff').value.trim();
             const date = $('#date').value;
             const time = $('#time').value;
-            const vehicle = $('#vehicle').value;
             const passengers = $('#passengers').value;
 
-            if(!fullName||!phone||!email||!pickup||!dropoff||!date||!time){
+            if(!fullName||!phone||!email||!date||!time){
                 alert('Please complete all required fields.');
+                return;
+            }
+
+            if(serviceType === 'checkin' && !pickup){
+                alert('Please enter a pickup address for check-in service.');
+                return;
+            }
+
+            if(serviceType === 'checkout' && !dropoff){
+                alert('Please enter a dropoff address for check-out service.');
                 return;
             }
 
             const ref = generateRef();
             const driver = assignDriver();
             const booking = {
-                ref, fullName, phone, email, pickup, dropoff, date, time, vehicle, passengers,
+                ref, fullName, phone, email, serviceType, 
+                pickup: serviceType === 'checkin' ? pickup : 'Hotel',
+                dropoff: serviceType === 'checkout' ? dropoff : 'Hotel',
+                date, time, passengers,
                 status: 'Confirmed',
                 driver,
                 createdAt: new Date().toISOString()
@@ -746,34 +795,13 @@
             el.innerHTML = `
                 <div class="status-icon"><i class="fas fa-check-circle confirmed"></i></div>
                 <h3>Booking Confirmed!</h3>
-                <p>Your Pocket Car is scheduled to arrive around <strong>${estimateArrivalTime(date,time)}</strong> on <strong>${date}</strong>.</p>
+                <p>Your Pocket Car is scheduled for <strong>${serviceType === 'checkin' ? 'pickup' : 'dropoff'}</strong> around <strong>${estimateArrivalTime(date,time)}</strong> on <strong>${date}</strong>.</p>
                 <p>Driver: <strong>${driver.name}</strong> | Vehicle: <strong>${driver.vehicle}</strong></p>
                 <p class="small muted">Reference: <strong>${ref}</strong></p>
             `;
 
             renderBookings();
             el.scrollIntoView({behavior:'smooth'});
-        });
-
-        // Quick check status button
-        $('#check-status').addEventListener('click', function(){
-            const ref = $('#booking-ref').value.trim();
-            const email = $('#email').value.trim();
-            if(!ref || !email){ alert('Please enter both reference and email.'); return; }
-            const bookings = loadBookings();
-            const b = bookings.find(x => x.ref === ref && x.email.toLowerCase() === email.toLowerCase());
-            const el = $('#status-result');
-            if(!b){
-                el.style.display = 'block';
-                el.innerHTML = `
-                    <div class="status-icon"><i class="fas fa-exclamation-circle pending"></i></div>
-                    <h3>Not found</h3>
-                    <p class="small muted">No booking matched that reference and email.</p>
-                `;
-                el.scrollIntoView({behavior:'smooth'});
-                return;
-            }
-            showBookingDetails(b.ref);
         });
 
         function estimateArrivalTime(dateStr,timeStr){
@@ -804,5 +832,3 @@
     </script>
 </body>
 </html>
-
-
